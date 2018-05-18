@@ -7,33 +7,33 @@
 #include <tchar.h>  
 using namespace cv;
 using namespace std;
-//  Ô­Í¼£¬      Ä£°åÆ¥ÅäÍ¼£¬ ´¦Àí½á¹ûÍ¼£¬±ßÔµ¼ì²âÍ¼£¬    ·Ö¸îÍ¼ 
+//  åŸå›¾ï¼Œ      æ¨¡æ¿åŒ¹é…å›¾ï¼Œ å¤„ç†ç»“æœå›¾ï¼Œè¾¹ç¼˜æ£€æµ‹å›¾ï¼Œ    åˆ†å‰²å›¾ 
 Mat g_srcImage, g_tempImage, g_dstImage, g_Canny_dstImage, g_ROI_dstImage;
-//Ä£°åÆ¥Åä·½Ê½Áù
+//æ¨¡æ¿åŒ¹é…æ–¹å¼å…­
 int g_MatchMethod = 5;
-//Ä£°åÆ¥Åä×óÉÏµã
+//æ¨¡æ¿åŒ¹é…å·¦ä¸Šç‚¹
 Point g_matchLocation;
-//Ä¿±êµã×ø±ê
+//ç›®æ ‡ç‚¹åæ ‡
 Point g_dst_nextPoint;
-//Ä¿±êµãÔ­Í¼×ø±ê
+//ç›®æ ‡ç‚¹åŸå›¾åæ ‡
 Point g_src_nextPoint;
-//µ÷ÊÔ
+//è°ƒè¯•
 Point g_c_nextPoint;
 Point g_c_matchLocation;
 int g_dis=0, g_time = 0;
-//»ñÈ¡ÊÖ»ú½ØÍ¼
+//è·å–æ‰‹æœºæˆªå›¾
 void get_screenshot();
-//Ä£°åÆ¥Åä
+//æ¨¡æ¿åŒ¹é…
 Point Matching(int, void*);
-//µã±ê¼Ç
+//ç‚¹æ ‡è®°
 static void DrawFilledCircle(Mat img, Point center);
-//±ßÔµ¼ì²â
+//è¾¹ç¼˜æ£€æµ‹
 Mat Cannying(Mat img);
-//¼ÆËãÄ¿±êÖĞĞÄµã
+//è®¡ç®—ç›®æ ‡ä¸­å¿ƒç‚¹
 Point GetNextPoint(Mat img);
-//¼ÆËãÁ½µã¾àÀë
+//è®¡ç®—ä¸¤ç‚¹è·ç¦»
 int GetDistance(Point beg, Point end);
-//°´Ñ¹
+//æŒ‰å‹
 void jump(int&g_distance);
 int time(int dis);
 void toJump(int time);
@@ -42,88 +42,88 @@ int main()
 	while (1)
 		//for(int i=0;i<2;i++)
 	{
-		//»ñÈ¡ÊÖ»ú½ØÍ¼
+		//è·å–æ‰‹æœºæˆªå›¾
 		get_screenshot();
-		//´ò¿ªÓÎÏ·Ô­Í¼
-		g_srcImage = imread("D:/´óÑ§/µçÔ·±­/autojump.png", 1);
-		//g_srcImage = imread("D:/´óÑ§/µçÔ·±­/´¦Àí²âÊÔ/1.png", 1);
+		//æ‰“å¼€æ¸¸æˆåŸå›¾
+		g_srcImage = imread("D:/å¤§å­¦/ç”µè‹‘æ¯/autojump.png", 1);
+		//g_srcImage = imread("D:/å¤§å­¦/ç”µè‹‘æ¯/å¤„ç†æµ‹è¯•/1.png", 1);
 		if (!g_srcImage.data)
 		{
-			printf("error!¶ÁÈ¡g_src´íÎó~");
+			printf("error!è¯»å–g_srcé”™è¯¯~");
 			return -1;
 		}
 
-		//´ò¿ªÆ¥ÅäÄ£°å
-		g_tempImage = imread("D:/´óÑ§/µçÔ·±­/tempCopy2.png", 1);
+		//æ‰“å¼€åŒ¹é…æ¨¡æ¿
+		g_tempImage = imread("D:/å¤§å­¦/ç”µè‹‘æ¯/tempCopy2.png", 1);
 		if (!g_tempImage.data)
 		{
-			printf("error!¶ÁÈ¡g_temp´íÎó~");
+			printf("error!è¯»å–g_tempé”™è¯¯~");
 			return -1;
 		}
 
-		namedWindow("¡¾Ô­Í¼¡¿", WINDOW_NORMAL);
-		//imshow("¡¾Ô­Í¼¡¿",g_src);
-		//imshow("¡¾Æ¥ÅäÄ£°å¡¿", g_temp);
-		//createTrackbar("Æ¥Åä·½·¨","¡¾Ô­Í¼¡¿",&g_MatchMethod,5,on_Matching);
+		namedWindow("ã€åŸå›¾ã€‘", WINDOW_NORMAL);
+		//imshow("ã€åŸå›¾ã€‘",g_src);
+		//imshow("ã€åŒ¹é…æ¨¡æ¿ã€‘", g_temp);
+		//createTrackbar("åŒ¹é…æ–¹æ³•","ã€åŸå›¾ã€‘",&g_MatchMethod,5,on_Matching);
 
-		//½øĞĞÄ£°åÆ¥Åä²¢·µ»ØĞ¡ºÚÈËÖĞĞÄ×ø±ê
+		//è¿›è¡Œæ¨¡æ¿åŒ¹é…å¹¶è¿”å›å°é»‘äººä¸­å¿ƒåæ ‡
 		g_matchLocation = Matching(0, 0);
 		
-		printf("Ğ¡ÈËÎ»ÖÃÎª£º(%d,%d)\n", g_matchLocation.x, g_matchLocation.y);
-		//¶ÔĞ¡ºÚÈËÖĞĞÄ×ø±ê½øĞĞ±ê¼Ç
+		printf("å°äººä½ç½®ä¸ºï¼š(%d,%d)\n", g_matchLocation.x, g_matchLocation.y);
+		//å¯¹å°é»‘äººä¸­å¿ƒåæ ‡è¿›è¡Œæ ‡è®°
 		DrawFilledCircle(g_srcImage, g_matchLocation);
 
-		//ÏÔÊ¾±ê¼ÇÍ¼
-		//imshow("¡¾Ô­Í¼¡¿", g_srcImage);
+		//æ˜¾ç¤ºæ ‡è®°å›¾
+		//imshow("ã€åŸå›¾ã€‘", g_srcImage);
 
-		//¼ô²ÃÍ¼Æ¬
+		//å‰ªè£å›¾ç‰‡
 		g_ROI_dstImage = g_srcImage(Rect(0, 300, g_srcImage.cols, g_srcImage.rows / 2 - 350));
-		/*namedWindow("¡¾ROI¡¿", WINDOW_NORMAL);
-		imshow("¡¾ROI¡¿", g_ROI_dstImage);*/
+		/*namedWindow("ã€ROIã€‘", WINDOW_NORMAL);
+		imshow("ã€ROIã€‘", g_ROI_dstImage);*/
 
-		//±ßÔµ¼ì²â
+		//è¾¹ç¼˜æ£€æµ‹
 		g_Canny_dstImage = Cannying(g_ROI_dstImage);
-		/*namedWindow("¡¾±ßÔµ¼ì²â¡¿", WINDOW_NORMAL);
-		imshow("¡¾±ßÔµ¼ì²â¡¿", g_Canny_dstImage);*/
-		//ÌáÈ¡Ä¿±êµã
+		/*namedWindow("ã€è¾¹ç¼˜æ£€æµ‹ã€‘", WINDOW_NORMAL);
+		imshow("ã€è¾¹ç¼˜æ£€æµ‹ã€‘", g_Canny_dstImage);*/
+		//æå–ç›®æ ‡ç‚¹
 		g_dst_nextPoint = GetNextPoint(g_Canny_dstImage);
 		g_src_nextPoint = Point(g_dst_nextPoint.x, g_dst_nextPoint.y + 300);
-		printf("Ä¿±êµãÎª£º(%d,%d)", g_src_nextPoint.x, g_src_nextPoint.y);
+		printf("ç›®æ ‡ç‚¹ä¸ºï¼š(%d,%d)", g_src_nextPoint.x, g_src_nextPoint.y);
 		DrawFilledCircle(g_Canny_dstImage, g_dst_nextPoint);
-		/*namedWindow("¡¾Ä¿±êµã»ñÈ¡¡¿", WINDOW_NORMAL);
-		imshow("¡¾Ä¿±êµã»ñÈ¡¡¿", g_Canny_dstImage);*/
-		//±ê¼ÇÄ¿±êµã
+		/*namedWindow("ã€ç›®æ ‡ç‚¹è·å–ã€‘", WINDOW_NORMAL);
+		imshow("ã€ç›®æ ‡ç‚¹è·å–ã€‘", g_Canny_dstImage);*/
+		//æ ‡è®°ç›®æ ‡ç‚¹
 		DrawFilledCircle(g_srcImage, g_src_nextPoint);
-		//imshow("¡¾Ô­Í¼¡¿", g_srcImage);
-		//¼ÆËãÁ½µã¾àÀë²¢Êä³ö
+		//imshow("ã€åŸå›¾ã€‘", g_srcImage);
+		//è®¡ç®—ä¸¤ç‚¹è·ç¦»å¹¶è¾“å‡º
 		g_dis = GetDistance(g_matchLocation, g_src_nextPoint);
-		printf("Á½µã¾àÀëÎª%d ppi\n", g_dis);
+		printf("ä¸¤ç‚¹è·ç¦»ä¸º%d ppi\n", g_dis);
 		//printf("(%d,%d)",g_src_nextPoint.x, g_src_nextPoint.y);
 		g_time = time(g_dis);
-		printf("ÌøÔ¾Ê±¼äÎª%d ppi\n", g_time);
+		printf("è·³è·ƒæ—¶é—´ä¸º%d ppi\n", g_time);
 		toJump(g_time);
-		//°´ÏÂESCÊ±ÍË³ö
+		//æŒ‰ä¸‹ESCæ—¶é€€å‡º
 		//jump(g_dis);
-		imshow("¡¾Ô­Í¼¡¿", g_srcImage);
+		imshow("ã€åŸå›¾ã€‘", g_srcImage);
 		//while (i--);
 		Sleep(1000);
-		//°´ÏÂspaceÔİÍ££¬°´ÏÂqÖØĞÂ¿ªÊ¼
+		//æŒ‰ä¸‹spaceæš‚åœï¼ŒæŒ‰ä¸‹qé‡æ–°å¼€å§‹
 		if (waitKey(1) == 32)
 			while (waitKey(1) != 113);
-		//°´ÏÂESCÍË³ö
+		//æŒ‰ä¸‹ESCé€€å‡º
 		if (waitKey(1000) == 27)break;
 	}
 	while (waitKey(1) != 27);
 	return 0;
 }
-//»ñÈ¡ÊÖ»ú½ØÍ¼
+//è·å–æ‰‹æœºæˆªå›¾
 void get_screenshot()
 {
 	system("adb shell screencap -p /sdcard/autojump.png");
-	system("adb pull /sdcard/autojump.png D:/´óÑ§/µçÔ·±­/autojump.png");
+	system("adb pull /sdcard/autojump.png D:/å¤§å­¦/ç”µè‹‘æ¯/autojump.png");
 }
 
-//²ÉÓÃ·½Ê½¶ş½øĞĞÄ£°åÆ¥Åä²¢·µ»ØĞ¡ºÚÈËÖĞĞÄ×ø±ê£¬
+//é‡‡ç”¨æ–¹å¼äºŒè¿›è¡Œæ¨¡æ¿åŒ¹é…å¹¶è¿”å›å°é»‘äººä¸­å¿ƒåæ ‡ï¼Œ
 Point Matching(int, void*)
 {
 	int resultImage_rows = g_srcImage.rows + g_tempImage.rows + 1;
@@ -154,14 +154,14 @@ Point Matching(int, void*)
 		Scalar(0, 0, 255), 2, 8, 0);
 	return Point(matchLocation.x + g_tempImage.cols / 2, matchLocation.y + g_tempImage.rows);
 }
-//±ê¼ÇĞ¡ºÚÈËÖĞĞÄ×ø±ê
+//æ ‡è®°å°é»‘äººä¸­å¿ƒåæ ‡
 static void DrawFilledCircle(Mat img, Point center)
 {
 	int thickness = -1;
 	int lineType = 8;
 	circle(img, center, 10, Scalar(0, 0, 0), thickness, lineType);
 }
-//Canny±ßÔµ¼ì²â
+//Cannyè¾¹ç¼˜æ£€æµ‹
 Mat Cannying(Mat img)
 {
 	Mat dst, edge, gray;
@@ -222,7 +222,8 @@ Point GetNextPoint(Mat img)
 		if (contours[nIdY][j].x == nXMax && contours[nIdY][j].y < minY)
 		{
 			point2 = contours[nIdY][j];
-			minY = contours[nIdY][j].y;     //¼ÇÂ¼XµãµÄ×î´óÖµ
+
+			//minY = contours[nIdY][j].y;     //è®°å½•Xç‚¹çš„æœ€å¤§å€¼
 		}
 	/*vector<vector<Point>>temp1;
 	vector<Vec4i>temp2;
@@ -242,13 +243,13 @@ int GetDistance(Point beg, Point end)
 	int dis = pow((pow(x, 2) + pow(y, 2)), 0.5);
 	return dis;
 }
-//°´Ñ¹
+//æŒ‰å‹
 void jump(int&dis)
 {
 	char AA[50];
 	int time = dis* 1.35;
-	printf("°´Ñ¹Ê±¼ä£º%d\n", time);
-	int rand_x = int(320 + rand() % 80); //¼ÓÉÏËæ»úÊıÊ¹µÃÃ¿´Î°´Ñ¹¶¼ÊÇÔÚµã£¨320,410£©-£¨370,460£©Ö®¼ä
+	printf("æŒ‰å‹æ—¶é—´ï¼š%d\n", time);
+	int rand_x = int(320 + rand() % 80); //åŠ ä¸Šéšæœºæ•°ä½¿å¾—æ¯æ¬¡æŒ‰å‹éƒ½æ˜¯åœ¨ç‚¹ï¼ˆ320,410ï¼‰-ï¼ˆ370,460ï¼‰ä¹‹é—´
 	int rand_y = int(410 + rand() % 80);
 	sprintf(AA, "adb shell input swipe %d %d %d %d %d", rand_x, rand_y, rand_x, rand_y, time);
 	//sprintf(AA, "adb shell input swipe %d %d %d %d %d", 320, 410, 320, 410, time);
@@ -260,18 +261,19 @@ int time(int dis)
 	int time = dis*1.35;
 	return time;
 }
+//æ ¹æ®ç¥¥å…‰ä¸²å£é€šä¿¡è½¯ä»¶å¥æŸ„ï¼Œè¿›è¡Œè‡ªåŠ¨å‘é€æ•°æ®
 void toJump(int time)
 {
 	int time_b, time_s, time_g;
 	time_b = time / 100;
 	time_s = time % 100 / 10;
 	time_g = time%100%10;
-	//´°¿Ú¾ä±ú
+	//çª—å£å¥æŸ„
 	HWND hWnd = (HWND)0x00020454;
-	//·¢ËÍ¾ä±úq
+	//å‘é€å¥æŸ„q
 	HWND hbutton = (HWND)0x00020452;
 
-	//·¢ËÍ°ÙÎ»
+	//å‘é€ç™¾ä½
 	const char* dat_b;
 	string temp_b = to_string(time_b);
 	dat_b = temp_b.c_str();
@@ -280,7 +282,7 @@ void toJump(int time)
 	SendMessage(hbutton, WM_LBUTTONDOWN, (int)0, NULL);
 	SendMessage(hbutton, WM_LBUTTONUP, (int)0, NULL);
 	Sleep(1000);
-	//·¢ËÍÊ®Î»
+	//å‘é€åä½
 	const char* dat_s;
 	string temp_s = to_string(time_s);
 	dat_s = temp_s.c_str();
@@ -289,7 +291,7 @@ void toJump(int time)
 	SendMessage(hbutton, WM_LBUTTONDOWN, (int)0, NULL);
 	SendMessage(hbutton, WM_LBUTTONUP, (int)0, NULL);
 	Sleep(1000);
-	//·¢ËÍ¸öÎ»
+	//å‘é€ä¸ªä½
 	const char* dat_g;
 	string temp_g = to_string(time_g);
 	dat_g = temp_g.c_str();
